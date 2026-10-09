@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+<meta name="theme-color" content="#000000">
+<meta name="mobile-web-app-capable" content="yes">
+<title>Mis ahorros</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:dark;--bg:#000;--card:#111112;--ink:#F2F2F3;--mute:#9A9AA0;--in:#4CC285;--out:#F0806B;--line:#252528;--btn:#F2F2F3;--btnt:#000;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+button{touch-action:manipulation}
+html,body{overscroll-behavior-y:none}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Bricolage Grotesque",system-ui,-apple-system,sans-serif;min-height:100vh}
+main{max-width:480px;margin:0 auto;padding:24px 18px 120px}
+.top p{margin:0;color:var(--mute);font-size:15px}
+.bal{font-size:52px;font-weight:800;letter-spacing:-.03em;line-height:1.1;margin:4px 0 18px;word-break:break-all}
+.bal.neg{color:var(--out)}
+.sum{display:flex;gap:10px;margin-bottom:26px}
+.sum div{flex:1;background:var(--card);border-radius:26px;padding:14px 18px;border:1px solid var(--line)}
+.sum span{display:block;font-size:13px;color:var(--mute)}
+.sum b{font-size:19px;font-weight:600}
+.sum .i b{color:var(--in)}.sum .o b{color:var(--out)}
+h3.day{font-size:15px;font-weight:600;color:var(--mute);margin:18px 4px 8px}
+.sum em{font-style:normal}
+h2{font-size:16px;font-weight:600;margin:0 0 10px}
+ul{list-style:none;margin:0;padding:0;background:var(--card);border:1px solid var(--line);border-radius:28px;overflow:hidden}
+li{display:flex;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid var(--line)}
+li:last-child{border-bottom:0}
+li .t{flex:1;min-width:0}
+li .t b{display:block;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+li .t small{color:var(--mute);font-size:13px}
+li .a{font-weight:600;white-space:nowrap}
+li.in .a{color:var(--in)}li.out .a{color:var(--out)}
+li button{background:none;border:0;color:var(--mute);font-size:24px;width:44px;height:44px;border-radius:50%;cursor:pointer;margin-right:-8px}
+.empty{padding:26px 16px;text-align:center;color:var(--mute);background:var(--card);border:1px solid var(--line);border-radius:28px}
+.fab{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));width:96px;height:60px;padding:0;background:var(--btn);color:var(--btnt);border:0;border-radius:999px;font:400 38px/1 "Bricolage Grotesque",system-ui,sans-serif;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 18px rgba(0,0,0,.6);cursor:pointer}
+#dlg,#cfg{border:0;border-radius:36px 36px 0 0;max-height:92vh;overflow:auto;padding:24px 20px calc(24px + env(safe-area-inset-bottom,0px));width:100%;max-width:480px;background:var(--card);color:var(--ink)}
+.ov{display:none;position:fixed;left:0;right:0;top:0;bottom:0;background:rgba(0,0,0,.65);z-index:10;align-items:flex-end;justify-content:center}
+.ov.show{display:flex}
+.warn{background:#3A2A10;color:#F6C76B;border-radius:18px;padding:12px 16px;margin-bottom:16px;font-size:14px;display:none}
+.seg{display:flex;background:var(--bg);border-radius:22px;padding:5px;margin-bottom:14px}
+.seg button{flex:1;border:0;background:none;color:var(--mute);font:600 16px "Bricolage Grotesque",system-ui,sans-serif;padding:13px;min-height:48px;border-radius:18px;cursor:pointer}
+.seg button.on.in{background:var(--in);color:#fff}.seg button.on.out{background:var(--out);color:#fff}
+label{display:block;font-size:14px;color:var(--mute);margin:0 0 12px}
+input,select{display:block;width:100%;margin-top:5px;padding:15px 16px;min-height:52px;border:1px solid var(--line);border-radius:18px;background:var(--bg);color:var(--ink);font:500 18px "Bricolage Grotesque",system-ui,sans-serif}
+input:focus-visible,button:focus-visible{outline:3px solid var(--in);outline-offset:2px}
+.row{display:flex;gap:10px;margin-top:6px}
+.row button{flex:1;padding:15px;min-height:54px;border-radius:999px;border:1px solid var(--line);background:none;color:var(--ink);font:600 16px "Bricolage Grotesque",system-ui,sans-serif;cursor:pointer}
+.row .save{background:var(--btn);color:var(--btnt);border-color:var(--btn)}
+#dlg.out{--card:#160A09;--bg:#0A0403;--line:#3F201C;--mute:#C79A92}
+#dlg.in .save{background:var(--in);border-color:var(--in);color:#fff}
+#dlg.out .save{background:var(--out);border-color:var(--out);color:#fff}
+#dlg.in{border-top:6px solid var(--in)}
+#dlg.out{border-top:6px solid var(--out)}
+#dlg.out input:focus-visible,#dlg.out button:focus-visible{outline-color:var(--out)}
+#dlg.out #amt{color:var(--out);border-color:var(--out)}
+#dlg.in #amt{color:var(--in)}
+.lock{display:none;position:fixed;left:0;right:0;top:0;bottom:0;z-index:50;background:#000;flex-direction:column;align-items:center;justify-content:center;padding:24px;padding-bottom:calc(24px + env(safe-area-inset-bottom,0px))}
+.lock.show{display:flex}
+.lock h1{margin:0 0 6px;font-size:28px;font-weight:800}
+.lock p{margin:0;color:var(--mute);min-height:20px;text-align:center}
+.dots{display:flex;gap:16px;margin:28px 0 8px}
+.dots i{width:16px;height:16px;border-radius:50%;border:2px solid var(--mute)}
+.dots i.f{background:var(--ink);border-color:var(--ink)}
+.lerr{color:var(--out);min-height:22px;margin:0 0 14px;font-size:15px}
+.pad{display:grid;grid-template-columns:repeat(3,76px);gap:14px}
+.pad button{width:76px;height:76px;border-radius:50%;border:0;background:var(--card);color:var(--ink);font:600 28px "Bricolage Grotesque",system-ui,sans-serif;cursor:pointer}
+.pad button.x{background:none;font-size:22px;color:var(--mute)}
+.forgot{background:none;border:0;color:var(--mute);font:500 15px "Bricolage Grotesque",system-ui,sans-serif;margin-top:22px;padding:10px 14px;cursor:pointer}
+.top{position:relative}
+.gear.act{background:var(--btn);color:var(--btnt)}
+.gear{display:flex;align-items:center;justify-content:center;padding:0;position:absolute;right:0;top:0;width:46px;height:46px;border-radius:50%;border:0;background:var(--card);color:var(--ink);font-size:22px;cursor:pointer}
+.card{background:var(--card);border:1px solid var(--line);border-radius:28px;padding:16px 18px;margin-bottom:14px}
+.card b{font-weight:600}.card small{color:var(--mute);font-size:13px}
+.bar{height:12px;border-radius:99px;background:var(--bg);overflow:hidden;margin-top:10px}
+.bar i{display:block;height:100%;border-radius:99px;background:var(--in)}
+.bar i.w{background:#E5A93C}.bar i.r{background:var(--out)}
+.crow{display:flex;justify-content:space-between;font-size:14px;margin-top:12px}
+.crow+.bar{margin-top:5px}
+.chips{display:flex;gap:8px;margin:0 0 12px}
+.chips button{flex:1;min-height:44px;border-radius:999px;border:1px solid var(--line);background:none;color:var(--mute);font:600 15px "Bricolage Grotesque",system-ui,sans-serif;cursor:pointer}
+.chips button.on{background:var(--btn);color:var(--btnt);border-color:var(--btn)}
+li .t{cursor:pointer}
+.hd{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.hd button{width:44px;height:44px;border-radius:50%;border:0;background:var(--bg);color:var(--ink);font-size:24px;cursor:pointer}
+.hd b{flex:1;font-size:19px;font-weight:600}.hd span{color:var(--mute);font-size:14px}
+.stp{display:none}.stp.on{display:block}
+.big{display:flex;flex-direction:column;gap:12px}
+.big button{flex:1;min-height:84px;border-radius:999px;border:0;color:#fff;font:800 24px "Bricolage Grotesque",system-ui,sans-serif;cursor:pointer}
+.big .bi{background:var(--in)}.big .bo{background:var(--out)}
+.cats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.cats button{min-height:58px;border-radius:999px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:600 17px "Bricolage Grotesque",system-ui,sans-serif;cursor:pointer}
+.cats button.on{background:var(--btn);color:var(--btnt);border-color:var(--btn)}
+.err{color:var(--out);font-size:14px;min-height:18px;margin:0 0 6px}
+/* Estilo unificado: botones grandes, redondeados y en negrita, como Ingreso/Gasto */
+button{font-family:"Bricolage Grotesque",system-ui,sans-serif;font-weight:800}
+.row{flex-direction:column;gap:12px}
+.row button{flex:none;width:100%;min-height:64px;padding:0 20px;border:0;border-radius:999px;background:var(--line);color:var(--ink);font-size:18px;font-weight:800}
+.row .save{background:var(--btn);color:var(--btnt)}
+.chips button,.cats button{border:0;border-radius:999px;background:var(--line);color:var(--ink);font-weight:800}
+.chips button{min-height:54px;font-size:16px}
+.cats button{min-height:64px;font-size:18px}
+.chips button.on,.cats button.on{background:var(--btn);color:var(--btnt)}
+.fab{width:116px;height:66px;font-weight:800}
+.forgot{min-height:54px;padding:0 24px;border-radius:999px;background:var(--line);color:var(--ink);font-weight:800;font-size:16px}
+.pad button{font-weight:800}
+.sum{flex-direction:column;gap:12px}
+.sum div{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:72px;padding:0 26px;border:0;border-radius:999px}
+.sum .i{background:var(--in)}.sum .o{background:var(--out)}
+.sum span{font-size:16px;font-weight:800;color:#fff}
+.sum .i b,.sum .o b{font-size:22px;font-weight:800;color:#fff}
+/* Forma de cápsula en todo */
+.card{border-radius:999px;padding:18px 30px}
+#fpanel{background:none;border:0;border-radius:0;padding:0}
+ul{background:none;border:0;border-radius:0;overflow:visible}
+li{background:var(--card);border:0;border-bottom:0;border-radius:999px;margin-bottom:10px;padding:12px 10px 12px 26px}
+.empty{border-radius:999px;padding:22px 32px}
+.warn{border-radius:999px;padding:14px 26px}
+input,select{border-radius:999px;padding:0 24px;min-height:56px}
+/* Cápsulas que se adaptan: radio fijo = mitad de la altura mínima, así crecen sin deformarse */
+.card{border-radius:36px;padding:18px 28px}
+li{min-height:64px;border-radius:32px;align-items:center}
+li .t{min-width:0}
+li .t b{white-space:normal;overflow:visible;text-overflow:clip;overflow-wrap:anywhere}
+li .a{padding-left:6px}
+.sum div{border-radius:36px;padding:14px 26px}
+.sum span{min-width:0;overflow-wrap:anywhere}
+.sum b{text-align:right;overflow-wrap:anywhere}
+.empty{border-radius:36px}
+.warn{border-radius:28px}
+input,select{border-radius:28px}
+.row button{height:auto;min-height:64px;padding:12px 22px;border-radius:32px}
+.chips button{border-radius:27px}
+.cats button{height:auto;padding:12px 16px;border-radius:32px}
+.big button{border-radius:42px}
+.forgot{border-radius:27px}
+#dlg.n{border-top:6px solid #fff}
+.cv{display:none}.cv.on{display:block}
+.mi{display:flex;align-items:center;gap:14px;width:100%;min-height:64px;padding:10px 20px 10px 14px;margin-bottom:10px;border:0;border-radius:32px;background:var(--line);color:var(--ink);font-size:17px;font-weight:800;text-align:left;cursor:pointer}
+.mi .ic{width:42px;height:42px;border-radius:50%;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:20px;flex:none}
+.mi .tx{flex:1;min-width:0}
+.mi small{display:block;color:var(--mute);font-size:13px;font-weight:500;margin-top:2px}
+.mi .ch{color:var(--mute);font-size:24px;font-weight:400}
+.duo{display:flex;gap:10px;margin-bottom:14px}
+.duo .card{flex:1;min-width:0;margin-bottom:0;padding:16px 20px}
+.duo .crow{flex-direction:column;gap:2px}
+.duo2{display:flex;gap:10px;margin-bottom:10px}
+.duo2 .mi{flex:1;min-width:0;flex-direction:column;align-items:flex-start;justify-content:space-between;gap:10px;min-height:118px;margin-bottom:0;padding:16px;border-radius:32px}
+.duo2 .mi .ch{display:none}
+.duo2 .mi .tx{font-size:16px}
+#ov2{align-items:stretch;justify-content:flex-end}
+#cfg{width:86%;max-width:380px;height:100%;max-height:none;border-radius:36px 0 0 36px;padding-top:calc(24px + env(safe-area-inset-top,0px))}
+#ov2.show #cfg{animation:slin .25s ease-out}
+@keyframes slin{from{transform:translateX(100%)}to{transform:none}}
+/* Animaciones */
+@keyframes fade{from{opacity:0}}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}}
+@keyframes up{from{opacity:0;transform:translateY(60px)}}
+@keyframes stepin{from{opacity:0;transform:translateX(18px)}}
+@keyframes grow{from{width:0}}
+@keyframes bye{to{opacity:0;transform:translateX(50px)}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-10px)}40%{transform:translateX(10px)}60%{transform:translateX(-7px)}80%{transform:translateX(7px)}}
+@keyframes fabin{from{opacity:0;transform:translateX(-50%) scale(.3)}to{opacity:1;transform:translateX(-50%) scale(1)}}
+button{transition:transform .12s ease,background .2s ease}
+button:active{transform:scale(.95)}
+.fab{animation:fabin .5s cubic-bezier(.2,1.4,.4,1) .2s backwards}
+.fab:active{transform:translateX(-50%) scale(.93)}
+.ov.show{animation:fade .2s ease-out}
+.ov.show #dlg{animation:up .32s cubic-bezier(.2,.8,.2,1)}
+.stp.on,.cv.on{animation:stepin .25s ease-out}
+.card,.sum div{animation:rise .45s ease-out both}
+.sum .o{animation-delay:.08s}
+li.pop{animation:rise .38s ease-out both}
+li.bye{animation:bye .25s ease-in forwards}
+.bar i.g{animation:grow .9s cubic-bezier(.2,.8,.2,1)}
+.bar i{transition:width .5s ease}
+.dots i{transition:background .15s,transform .15s}
+.dots i.f{transform:scale(1.25)}
+.dots.shake{animation:shake .4s}
+.lock.show{animation:fade .25s ease-out}
+/* PIN: teclado y desbloqueo */
+@keyframes keyin{from{opacity:0;transform:scale(.55) translateY(18px)}}
+@keyframes dotpop{0%{transform:scale(.6)}60%{transform:scale(1.5)}100%{transform:scale(1.25)}}
+@keyframes okpop{0%,100%{transform:scale(1.25)}50%{transform:scale(1.9)}}
+@keyframes unlock{0%{opacity:1;transform:none}30%{opacity:1;transform:scale(1.03)}100%{opacity:0;transform:scale(1.18) translateY(-40px)}}
+@keyframes reveal{from{opacity:0;transform:scale(.96) translateY(14px)}}
+.lock.show .pad button{animation:keyin .45s cubic-bezier(.2,1.2,.4,1) backwards}
+.pad button:active{transform:scale(.86);background:var(--line)}
+.dots i.f{animation:dotpop .25s ease-out}
+.dots.ok i{background:var(--in);border-color:var(--in);animation:okpop .45s ease-in-out}
+.dots.ok i:nth-child(2){animation-delay:.05s}.dots.ok i:nth-child(3){animation-delay:.1s}.dots.ok i:nth-child(4){animation-delay:.15s}
+.dots.shake i{border-color:var(--out)}
+.lock.show.out{animation:unlock .45s ease-in forwards;pointer-events:none}
+.lock.out h1{color:var(--in);transition:color .2s}
+main.rev{animation:reveal .55s cubic-bezier(.2,.8,.2,1)}
+/* Separación de los botones de filtro */
+#fbtn{right:58px!important}
+#fpanel{margin-bottom:18px}
+#fpanel #q{margin:0 0 14px}
+#fpanel .chips{gap:10px;margin:0}
+/* Animaciones más fluidas */
+:root{--ease:cubic-bezier(.22,1,.36,1);--spring:cubic-bezier(.34,1.56,.64,1)}
+@keyframes up{from{transform:translateY(100%)}to{transform:none}}
+@keyframes down{from{transform:none}to{transform:translateY(100%)}}
+@keyframes slin{from{transform:translateX(100%)}to{transform:none}}
+@keyframes slout{from{transform:none}to{transform:translateX(100%)}}
+@keyframes fadeout{from{opacity:1}to{opacity:0}}
+@keyframes stepin{from{opacity:0;transform:translateX(26px)}to{opacity:1;transform:none}}
+@keyframes rise{from{opacity:0;transform:translateY(18px) scale(.98)}to{opacity:1;transform:none}}
+#dlg,#cfg{will-change:transform}
+#dlg{min-height:440px}
+.ov.show{animation:fade .3s ease-out}
+.ov.show #dlg{animation:up .42s var(--ease)}
+#ov2.show #cfg{animation:slin .42s var(--ease)}
+.ov.show.closing{animation:fadeout .28s ease-in forwards}
+.ov.closing #dlg{animation:down .28s cubic-bezier(.5,0,.75,0) forwards}
+#ov2.closing #cfg{animation:slout .28s cubic-bezier(.5,0,.75,0) forwards}
+.stp.on,.cv.on{animation:stepin .34s var(--ease) both}
+.card,.sum div{animation:rise .55s var(--ease) both}
+li.pop{animation:rise .45s var(--ease) both}
+.bar i.g{animation:grow 1s var(--ease)}
+button{transition:transform .4s var(--spring),background .2s ease}
+button:active{transition-duration:.08s}
+.fab{animation:fabin .6s var(--spring) .2s backwards}
+.lock.show .pad button{animation:keyin .5s var(--spring) backwards}
+/* Panel: sube desde abajo (transición, más fiable que keyframes) */
+#dlg{transform:translateY(100%);transition:transform .45s var(--ease)}
+#cfg{transform:translateX(100%);transition:transform .45s var(--ease)}
+.ov.on #dlg,.ov.on #cfg{transform:none}
+.ov.show #dlg,#ov2.show #cfg,.ov.closing #dlg,#ov2.closing #cfg{animation:none}
+.ov.closing #dlg,.ov.closing #cfg{transition-duration:.3s;transition-timing-function:cubic-bezier(.5,0,.75,0)}
+@keyframes stepin{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){
+  *:not(#dlg):not(#cfg):not(.ov){animation:none!important;transition:none!important}
+  #dlg,#cfg{transition-property:transform!important;transition-duration:.3s!important}
+}
+/* Panel más compacto y más abajo */
+#dlg{min-height:370px;max-height:68vh;padding:18px 20px calc(18px + env(safe-area-inset-bottom,0px))}
+#dlg .hd{margin-bottom:12px}
+#dlg .big button{min-height:72px}
+#dlg .cats{gap:8px}
+#dlg .cats button{min-height:50px;padding:6px 14px;font-size:17px}
+#dlg .row button{min-height:58px}
+#dlg label{margin-bottom:8px}
+#dlg input{min-height:52px}
+/* El panel se ajusta a su contenido: sin espacio vacío debajo de los botones */
+#dlg{min-height:0}
+/* Rendimiento: solo transform y opacity (los anima la GPU, sin recalcular el diseño), válido para 60/90/120 Hz */
+@keyframes rise{from{opacity:0;transform:translate3d(0,18px,0) scale(.98)}to{opacity:1;transform:translate3d(0,0,0)}}
+@keyframes stepin{from{opacity:0;transform:translate3d(0,26px,0)}to{opacity:1;transform:translate3d(0,0,0)}}
+@keyframes bye{to{opacity:0;transform:translate3d(50px,0,0)}}
+@keyframes shake{0%,100%{transform:translate3d(0,0,0)}20%{transform:translate3d(-10px,0,0)}40%{transform:translate3d(10px,0,0)}60%{transform:translate3d(-7px,0,0)}80%{transform:translate3d(7px,0,0)}}
+@keyframes fabin{from{opacity:0;transform:translate3d(-50%,0,0) scale(.3)}to{opacity:1;transform:translate3d(-50%,0,0) scale(1)}}
+@keyframes keyin{from{opacity:0;transform:translate3d(0,18px,0) scale(.55)}to{opacity:1;transform:translate3d(0,0,0)}}
+@keyframes dotpop{0%{transform:scale(.6)}60%{transform:scale(1.5)}100%{transform:scale(1.25)}}
+@keyframes unlock{0%{opacity:1;transform:translate3d(0,0,0)}30%{opacity:1;transform:translate3d(0,0,0) scale(1.03)}100%{opacity:0;transform:translate3d(0,-40px,0) scale(1.18)}}
+@keyframes reveal{from{opacity:0;transform:translate3d(0,14px,0) scale(.96)}to{opacity:1;transform:translate3d(0,0,0)}}
+@keyframes growx{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+#dlg{transform:translate3d(0,100%,0)}
+#cfg{transform:translate3d(100%,0,0)}
+.ov.on #dlg,.ov.on #cfg{transform:translate3d(0,0,0)}
+.bar i{transform-origin:left center;transition:none}
+.bar i.g{animation:growx 1s var(--ease)}
+.fab{transform:translate3d(-50%,0,0);will-change:transform}
+.fab:active{transform:translate3d(-50%,0,0) scale(.93)}
+.bal{font-variant-numeric:tabular-nums;contain:layout style}
+li.pop,.card,.sum div,.lock.show .pad button{backface-visibility:hidden}
+.mnav{display:flex;align-items:center;justify-content:space-between;margin:0 0 12px}
+.mnav b{font-weight:800;font-size:17px}
+.mnav button{width:46px;height:46px;border-radius:50%;border:0;background:var(--card);color:var(--ink);font-size:24px;cursor:pointer}
+#bk{align-items:center;gap:10px}
+#bk button{border:0;border-radius:999px;min-height:40px;padding:0 14px;background:#F6C76B;color:#3A2A10;font-size:14px;font-weight:800;cursor:pointer}
+#bk #bkx{width:40px;padding:0}
+textarea{display:block;width:100%;margin-top:5px;padding:14px 18px;border:1px solid var(--line);border-radius:24px;background:var(--bg);color:var(--ink);font:500 15px system-ui,sans-serif;resize:none}
+.cr{display:flex;gap:8px;margin-bottom:8px}
+.cr input{flex:1;min-width:0;margin:0;min-height:48px}
+.cr button{width:48px;height:48px;flex:none;border-radius:50%;border:0;background:var(--line);color:var(--ink);font-size:22px;cursor:pointer}
+.snack{position:fixed;left:50%;bottom:calc(104px + env(safe-area-inset-bottom,0px));transform:translate3d(-50%,20px,0);opacity:0;pointer-events:none;display:flex;align-items:center;gap:14px;padding:8px 8px 8px 22px;border-radius:999px;background:#F2F2F3;color:#000;font-weight:800;font-size:15px;white-space:nowrap;z-index:30;transition:transform .35s var(--ease),opacity .25s ease}
+.snack.show{transform:translate3d(-50%,0,0);opacity:1;pointer-events:auto}
+.snack button{border:0;border-radius:999px;background:#000;color:#fff;min-height:44px;padding:0 18px;font-size:15px;font-weight:800;cursor:pointer}
+.ov.closing{pointer-events:none}
+#dlg,#cfg{transition-duration:.3s}
+.snack{pointer-events:none}.snack.show{pointer-events:auto}
+/* Toques que se convertían en scroll: la página ya no desborda y los botones no inician scroll */
+html{height:100%}
+body{min-height:100%}
+button{touch-action:none}
+.mi{touch-action:manipulation}
+/* Botones más grandes */
+main{padding-bottom:150px}
+.gear{width:62px;height:62px;font-size:28px}
+.gear svg{width:28px;height:28px}
+#fbtn{right:76px!important}
+.mnav button{width:62px;height:62px;font-size:32px}
+.mnav b{font-size:19px}
+.fab{width:150px;height:84px;font-size:48px;bottom:calc(22px + env(safe-area-inset-bottom,0px))}
+.snack{bottom:calc(122px + env(safe-area-inset-bottom,0px))}
+.snack button{min-height:56px;padding:0 22px;font-size:16px}
+.chips button{min-height:62px;font-size:18px}
+li{min-height:76px}
+li button{width:60px;height:60px;font-size:30px}
+.hd button{width:58px;height:58px;font-size:30px}
+.big button{min-height:100px;font-size:28px}
+#dlg .big button{min-height:96px}
+#dlg .cats button{min-height:64px;font-size:19px}
+.cats button{min-height:68px;font-size:19px}
+.row button,#dlg .row button{min-height:72px;font-size:20px}
+.mi{min-height:80px;font-size:18px}
+.mi .ic{width:48px;height:48px;font-size:22px}
+.duo2 .mi{min-height:130px}
+.cr button{width:60px;height:60px;font-size:26px}
+.cr input{min-height:60px}
+input,select{min-height:62px;font-size:19px}
+.pad{grid-template-columns:repeat(3,92px);gap:16px}
+.pad button{width:92px;height:92px;font-size:36px}
+.pad button.x{font-size:28px}
+.forgot{min-height:64px;font-size:17px}
+#bk button{min-height:50px;font-size:15px}
+#bk #bkx{width:50px}
+/* Causa real: .bal (contain:layout) se pintaba encima de los botones de arriba y se comía los toques */
+.top .gear{z-index:5}
+.bal{position:relative;z-index:0;pointer-events:none}
+</style>
+</head>
+<body>
+<main>
+  <div class="warn" id="warn">Este visor no permite guardar datos: lo que agregues se perderá al cerrar. Ábrela en Chrome para que se guarde.</div>
+  <div class="warn" id="bk"><span id="bktxt" style="flex:1"></span><button type="button" id="bkgo">Respaldar</button><button type="button" id="bkx" aria-label="Recordar después">✕</button></div>
+  <div class="top"><button class="gear" id="fbtn" style="right:56px" aria-label="Filtrar"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h18l-7 8v6l-4 2v-8z"/></svg></button><button class="gear" id="gear" aria-label="Ajustes">⚙</button><p>Tengo ahorrado</p><div class="bal" id="bal">$0</div></div>
+  <div class="card" id="fpanel" style="display:none">
+  <input id="q" type="search" placeholder="Buscar movimiento...">
+  <div class="chips" id="chips"><button type="button" data-k="all" class="on">Todos</button><button type="button" data-k="in">Ingresos</button><button type="button" data-k="out">Gastos</button></div>
+  </div>
+  <div class="mnav"><button type="button" id="mprev" aria-label="Mes anterior">‹</button><b id="mlabel"></b><button type="button" id="mnext" aria-label="Mes siguiente">›</button></div>
+  <div class="sum">
+    <div class="i"><span>Ingresos de <em id="mes"></em></span><b id="sin">$0</b></div>
+    <div class="o"><span>Gastos de <em id="mes2"></em></span><b id="sout">$0</b></div>
+  </div>
+  <div class="duo" id="duo" style="display:none">
+    <div class="card" id="goalc" style="display:none"></div>
+    <div class="card" id="budc" style="display:none"></div>
+  </div>
+  <h2>Movimientos</h2>
+  <div id="list"></div>
+</main>
+<button class="fab" id="add" aria-label="Agregar movimiento">+</button>
+<div class="snack" id="snack"><span>Movimiento eliminado</span><button type="button" id="undo">Deshacer</button></div>
+
+<div id="lock" class="lock">
+  <h1 id="lt">Ingresa tu PIN</h1><p id="ls"></p>
+  <div class="dots" id="dots"><i></i><i></i><i></i><i></i></div>
+  <div class="lerr" id="lerr"></div>
+  <div class="pad" id="pad"></div>
+  <button type="button" class="forgot" id="bio" style="display:none">Usar huella o bloqueo del teléfono</button>
+  <button type="button" class="forgot" id="usepin" style="display:none">Usar PIN de la app</button>
+  <button type="button" class="forgot" id="forgot">Olvidé mi PIN</button>
+</div>
+
+<div id="ov2" class="ov"><div id="cfg">
+  <div class="hd"><button type="button" id="cback" aria-label="Atrás">✕</button><b id="ctl">Ajustes</b></div>
+  <div class="cv on" data-v="menu">
+    <div class="duo2">
+    <button type="button" class="mi" id="m-goal"><span class="ic">🎯</span><span class="tx">Meta de ahorro<small id="s-goal"></small></span><span class="ch">›</span></button>
+    <button type="button" class="mi" id="m-budget"><span class="ic">📅</span><span class="tx">Presupuesto mensual<small id="s-budget"></small></span><span class="ch">›</span></button>
+    </div>
+    <button type="button" class="mi" id="m-cats"><span class="ic">🏷️</span><span class="tx">Categorías<small>Crear, renombrar o quitar</small></span><span class="ch">›</span></button>
+    <button type="button" class="mi" id="exp"><span class="ic">⬇️</span><span class="tx">Exportar copia<small>Descarga un respaldo</small></span><span class="ch">›</span></button>
+    <button type="button" class="mi" id="imp"><span class="ic">⬆️</span><span class="tx">Importar copia<small>Restaura desde un respaldo</small></span><span class="ch">›</span></button>
+    <button type="button" class="mi" id="m-txt"><span class="ic">📋</span><span class="tx">Respaldo como texto<small>Copiar o pegar tus datos</small></span><span class="ch">›</span></button>
+    <button type="button" class="mi" id="m-bio"><span class="ic">👆</span><span class="tx">Huella o rostro<small id="s-bio"></small></span><span class="ch">›</span></button>
+    <button type="button" class="mi" id="chpin"><span class="ic">🔒</span><span class="tx">PIN de la app<small>Crear o cambiar tu PIN de respaldo</small></span><span class="ch">›</span></button>
+    <p class="err" id="cmsg" style="margin:10px 6px 0"></p>
+  </div>
+  <div class="cv" data-v="goal">
+    <label>Nombre de la meta<input id="gname" type="text" maxlength="30" placeholder="Ej: Viaje a Cancún"></label>
+    <label>Meta de ahorro ($)<input id="goal" type="number" inputmode="decimal" min="0" placeholder="Sin meta"></label>
+    <div class="row"><button type="button" class="save" id="ok-goal">Listo</button></div>
+  </div>
+  <div class="cv" data-v="budget">
+    <label>Nombre del presupuesto<input id="bname" type="text" maxlength="30" placeholder="Ej: Gastos del hogar"></label>
+    <label>Presupuesto mensual de gastos ($)<input id="budget" type="number" inputmode="decimal" min="0" placeholder="Sin presupuesto"></label>
+    <div class="row"><button type="button" class="save" id="ok-budget">Listo</button></div>
+  </div>
+  <div class="cv" data-v="cats"><div id="catlist"></div><div class="row"><button type="button" class="save" id="ok-cats">Listo</button></div></div>
+  <div class="cv" data-v="txt">
+    <label>Tus datos<textarea id="txt" rows="5" placeholder="Aquí aparece tu copia. Para importar, pega aquí una copia."></textarea></label>
+    <p class="err" id="tmsg"></p>
+    <div class="row"><button type="button" id="tcopy">Copiar mis datos</button><button type="button" id="timp">Importar lo pegado</button><button type="button" class="save" id="ok-txt">Listo</button></div>
+  </div>
+  <input type="file" id="file" accept=".json,application/json" style="display:none">
+</div></div>
+
+<div id="ov" class="ov"><div id="dlg" class="in">
+  <div class="hd"><button type="button" id="back" aria-label="Atrás">✕</button><b id="stl"></b><span id="stp"></span></div>
+  <div class="stp on" data-s="1"><div class="big"><button type="button" class="bi" data-t="in">Ingreso</button><button type="button" class="bo" data-t="out">Gasto</button></div></div>
+  <div class="stp" data-s="2">
+    <label>Monto<input id="amt" type="number" inputmode="decimal" min="0" step="0.01" placeholder="0"></label>
+    <p class="err" id="err2"></p>
+    <div class="row"><button type="button" class="save" id="nx">Siguiente</button></div>
+  </div>
+  <div class="stp" data-s="3"><div class="cats" id="cats"></div><select id="cat" style="display:none"></select></div>
+  <div class="stp" data-s="4">
+    <label>Descripción (opcional)<input id="note" type="text" maxlength="60" placeholder="Ej: sueldo, comida, regalo"></label>
+    <label>Fecha<input id="date" type="date"></label>
+    <p class="err" id="err"></p>
+    <div class="row"><button type="button" class="save" id="save">Guardar</button></div>
+  </div>
+</div></div>
+
+<script>
+(function(){
+  var KEY='mis-ahorros-v1', PK='mis-ahorros-pin', items=[], cfg={goal:0,budget:0,goalName:'',budName:''}, shown=0, balTok=0, vm=today().slice(0,7), seen={}, popN=0, barAnim=true, editing=null, flt='all', CK='mis-ahorros-cfg', CATS={in:['Sueldo','Regalo','Venta','Otros'],out:['Comida','Transporte','Casa','Salud','Ocio','Compras','Otros']}, type='in', canLock=true, entry='', mode='unlock', first='', locking=false;
+  function load(){try{var r=localStorage.getItem(KEY);items=r?JSON.parse(r):[];if(!Array.isArray(items))items=[]}catch(e){items=[]}}
+  function loadCfg(){try{var r=JSON.parse(localStorage.getItem(CK));if(r&&typeof r==='object')cfg={goal:+r.goal||0,budget:+r.budget||0,goalName:String(r.goalName||'').slice(0,30),budName:String(r.budName||'').slice(0,30)};if(r&&r.cats&&Array.isArray(r.cats.in)&&Array.isArray(r.cats.out)&&r.cats.in.length&&r.cats.out.length)CATS={in:r.cats.in.slice(0,20).map(String),out:r.cats.out.slice(0,20).map(String)}}catch(e){}}
+  function saveCfg(){try{localStorage.setItem(CK,JSON.stringify(Object.assign({},cfg,{cats:CATS})))}catch(e){}}
+  function persist(){try{localStorage.setItem(KEY,JSON.stringify(items))}catch(e){}}
+  var $=function(id){return document.getElementById(id)};
+  function num(n){var t=(Math.round(Math.abs(n)*100)/100).toFixed(2).split('.');var e=t[0].replace(/\B(?=(\d{3})+(?!\d))/g,',');return t[1]==='00'?e:e+'.'+t[1]}
+  function money(n){return (n<0?'-':'')+'$'+num(n)}
+  function today(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+  function dstr(s){var p=s.split('-');return new Date(p[0],p[1]-1,p[2]).toLocaleDateString('es',{day:'numeric',month:'short',year:'numeric'})}
+  function monthName(){var p=vm.split('-');var m=new Date(+p[0],+p[1]-1,1).toLocaleDateString('es',{month:'long'});return m.charAt(0).toUpperCase()+m.slice(1)}
+  function dayLabel(d){
+    var t=today(),y=new Date();y.setDate(y.getDate()-1);
+    var ys=y.getFullYear()+'-'+String(y.getMonth()+1).padStart(2,'0')+'-'+String(y.getDate()).padStart(2,'0');
+    if(d===t)return 'Hoy';if(d===ys)return 'Ayer';
+    var p=d.split('-');var s=new Date(p[0],p[1]-1,p[2]).toLocaleDateString('es',{weekday:'long',day:'numeric',month:'long'});
+    return s.charAt(0).toUpperCase()+s.slice(1);
+  }
+  function esc(t){return String(t).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+  function animBal(t){var tok=++balTok,from=shown;
+    if(from===t||(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)){shown=t;$('bal').textContent=money(t);return}
+    var st=null;function f(ts){if(tok!==balTok)return;if(st===null)st=ts;var p=Math.min(1,(ts-st)/700),e=1-Math.pow(1-p,3);shown=from+(t-from)*e;$('bal').textContent=money(p<1?shown:t);if(p<1)requestAnimationFrame(f);else shown=t}
+    requestAnimationFrame(f)}
+  function barHtml(p,cls){return '<div class="bar"><i class="'+(cls||'')+(barAnim?' g':'')+'" style="width:'+Math.max(0,Math.min(100,p))+'%"></i></div>'}
+  function extras(bal,mi,mo,cm){
+    checkBk();var pp=vm.split('-'),ml=new Date(+pp[0],+pp[1]-1,1).toLocaleDateString('es',{month:'long',year:'numeric'});$('mlabel').textContent=ml.charAt(0).toUpperCase()+ml.slice(1);$('mnext').style.opacity=vm>=today().slice(0,7)?.3:1;
+    var g=$('goalc'),bu=$('budc');$('duo').style.display=(cfg.goal>0||cfg.budget>0)?'flex':'none';
+    if(cfg.goal>0){var p=Math.round(Math.max(0,bal)/cfg.goal*100);g.style.display='block';
+      g.innerHTML='<b>'+esc(cfg.goalName||'Meta de ahorro')+'</b><div class="crow"><span>'+money(Math.max(0,bal))+' de '+money(cfg.goal)+'</span><span>'+p+'%</span></div>'+barHtml(p)+(bal>=cfg.goal?'<small>¡Meta lograda!</small>':'<small>Te faltan '+money(cfg.goal-Math.max(0,bal))+'</small>')}else g.style.display='none';
+    if(cfg.budget>0){var pb=Math.round(mo/cfg.budget*100);bu.style.display='block';
+      bu.innerHTML='<b>'+esc(cfg.budName||('Presupuesto de '+monthName()))+'</b><div class="crow"><span>'+money(mo)+' de '+money(cfg.budget)+'</span><span>'+pb+'%</span></div>'+barHtml(pb,pb>=100?'r':pb>=80?'w':'')+'<small>'+(mo>cfg.budget?'Te pasaste por '+money(mo-cfg.budget):pb>=80?'Cuidado, te quedan '+money(cfg.budget-mo):'Te quedan '+money(cfg.budget-mo))+'</small>'}else bu.style.display='none';barAnim=false;
+  }
+  function fillCats(t,sel){var c=$('cat');c.innerHTML='';CATS[t].forEach(function(n){var o=document.createElement('option');o.value=n;o.textContent=n;c.appendChild(o)});if(sel)c.value=sel;if(typeof drawCats==='function'&&$('cats'))drawCats()}
+  function render(){
+    popN=0;var ti=0,to=0,i=0,o=0,cm=vm;
+    items.forEach(function(x){
+      x.type==='in'?ti+=x.amount:to+=x.amount;
+      if((x.date||'').slice(0,7)===cm){x.type==='in'?i+=x.amount:o+=x.amount}
+    });
+    var b=ti-to;animBal(b);$('bal').className='bal'+(b<0?' neg':'');
+    $('sin').textContent=money(i);$('sout').textContent=money(o);
+    $('mes').textContent=monthName();$('mes2').textContent=monthName();
+    $('fbtn').className='gear'+((flt!=='all'||$('q').value)?' act':'');
+    extras(b,i,o,cm);
+    var L=$('list');L.innerHTML='';
+    if(!items.length){L.innerHTML='<div class="empty">Aún no hay movimientos. Toca el + para registrar tu primer ingreso o gasto.</div>';return}
+    var q=$('q').value.trim().toLowerCase();
+    var vis=items.filter(function(x){return (x.date||'').slice(0,7)===vm&&(flt==='all'||x.type===flt)&&(!q||((x.note||'')+' '+(x.cat||'')).toLowerCase().indexOf(q)>-1)});
+    if(!vis.length){L.innerHTML='<div class="empty">No hay movimientos en este mes con ese filtro.</div>';return}
+    var sorted=vis.sort(function(a,b){return b.date.localeCompare(a.date)||b.id-a.id});
+    var cur=null,ul=null;
+    sorted.forEach(function(x){
+      if(x.date!==cur){
+        cur=x.date;
+        var h=document.createElement('h3');h.className='day';h.textContent=dayLabel(x.date);L.appendChild(h);
+        ul=document.createElement('ul');L.appendChild(ul);
+      }
+      var li=document.createElement('li');li.className=x.type;if(!seen[x.id]){seen[x.id]=1;li.className+=' pop';li.style.animationDelay=Math.min(popN++,10)*45+'ms'}
+      var t=document.createElement('div');t.className='t';
+      var n=document.createElement('b');n.textContent=x.note||(x.type==='in'?'Ingreso':'Gasto');
+      var sm=document.createElement('small');sm.textContent=[x.cat,x.time].filter(Boolean).join(' · ');
+      t.appendChild(n);if(sm.textContent)t.appendChild(sm);
+      t.onclick=function(){openDlg(x)};
+      var a=document.createElement('div');a.className='a';a.textContent=(x.type==='in'?'+':'-')+money(x.amount);
+      var d=document.createElement('button');d.textContent='×';d.setAttribute('aria-label','Borrar movimiento');
+      d.onclick=function(){if(d.dataset.c){clearTimeout(d._t);if(d.dataset.b)return;d.dataset.b=1;li.className+=' bye';setTimeout(function(){items=items.filter(function(y){return y.id!==x.id});lastDel=x;persist();render();showSnack()},250)}else{d.dataset.c=1;d.textContent='¿Borrar?';d.style.cssText='width:auto;padding:0 12px;font-size:14px;color:var(--out)';d._t=setTimeout(function(){delete d.dataset.c;d.textContent='×';d.style.cssText=''},2500)}};
+      li.appendChild(t);li.appendChild(a);li.appendChild(d);ul.appendChild(li);
+    });
+  }
+  function setType(t){type=t;fillCats(t);$('dlg').className=t}
+  var step=1,picked=false;
+  function drawCats(){var c=$('cats');c.innerHTML='';CATS[type].forEach(function(n){var b=document.createElement('button');b.type='button';b.textContent=n;if(picked&&$('cat').value===n)b.className='on';b.onclick=function(){$('cat').value=n;picked=true;go(4)};c.appendChild(b)})}
+  function go(n){step=n;if(n===1)$('dlg').className='n';[].forEach.call(document.querySelectorAll('.stp'),function(e){e.className='stp'+(+e.dataset.s===n?' on':'')});
+    $('back').textContent=n===1?'✕':'‹';$('stp').textContent=n+' / 4';
+    $('stl').textContent=['','¿Qué vas a registrar?',(type==='in'?'Ingreso':'Gasto')+': ¿de cuánto?','¿En qué categoría?','Últimos detalles'][n];
+    if(n===2)setTimeout(function(){$('amt').focus()},60)}
+  var lastRz=0,lastOpen=0,authS=0,lockTok=0;
+  function openSheet(id){var el=$(id);clearTimeout(el._ct);lastOpen=Date.now();el.style.bottom='';el.className='ov show';void el.offsetWidth;el.className='ov show on'}
+  function closeSheet(id){var el=$(id);if(!el||el.className.indexOf('show')<0||el.className.indexOf('closing')>-1)return;el.className='ov show closing';clearTimeout(el._ct);el._ct=setTimeout(function(){if(el.className.indexOf('closing')>-1)el.className='ov'},300)}
+  function openDlg(x){editing=x?x.id:null;setType(x?x.type:'in');picked=!!(x&&x.cat);if(picked)$('cat').value=x.cat;drawCats();$('amt').value=x?x.amount:'';$('note').value=x?(x.note||''):'';$('date').value=x?x.date:today();$('err').textContent='';$('err2').textContent='';openSheet('ov');go(x?2:1)}
+  $('back').onclick=function(){if(step===1)closeSheet('ov');else go(step-1)};
+  [].forEach.call(document.querySelectorAll('.big button'),function(b){b.onclick=function(){setType(b.dataset.t);picked=false;drawCats();go(2)}});
+  $('nx').onclick=function(){var v=parseFloat($('amt').value);if(!(v>0)){$('err2').textContent='Escribe un monto mayor a 0.';return}$('err2').textContent='';go(3)};
+  $('amt').onkeydown=function(e){if(e.key==='Enter'){e.preventDefault();$('nx').onclick()}};
+  $('add').onclick=function(){openDlg(null)};
+  $('q').oninput=render;
+  $('fbtn').onclick=function(){var f=$('fpanel');f.style.display=f.style.display==='none'?'block':'none'};
+  [].forEach.call($('chips').children,function(b){b.onclick=function(){flt=b.dataset.k;[].forEach.call($('chips').children,function(c){c.className=c===b?'on':''});render()}});
+  var cv='menu';
+  function cview(v){cv=v;[].forEach.call(document.querySelectorAll('.cv'),function(e){e.className='cv'+(e.dataset.v===v?' on':'')});
+    $('cback').textContent=v==='menu'?'✕':'‹';$('ctl').textContent={menu:'Ajustes',goal:'Meta de ahorro',budget:'Presupuesto mensual',cats:'Categorías',txt:'Respaldo como texto'}[v];
+    $('s-goal').textContent=cfg.goal?(cfg.goalName?cfg.goalName+' · ':'')+money(cfg.goal):(cfg.goalName||'Sin meta');$('s-budget').textContent=cfg.budget?(cfg.budName?cfg.budName+' · ':'')+money(cfg.budget):(cfg.budName||'Sin presupuesto')}
+  $('gear').onclick=function(){bioStatus();$('goal').value=cfg.goal||'';$('budget').value=cfg.budget||'';$('gname').value=cfg.goalName||'';$('bname').value=cfg.budName||'';$('cmsg').textContent='';cview('menu');openSheet('ov2')};
+  $('cback').onclick=function(){if(cv==='menu')closeSheet('ov2');else cview('menu')};
+  $('m-goal').onclick=function(){cview('goal');setTimeout(function(){$('goal').focus()},60)};
+  $('m-budget').onclick=function(){cview('budget');setTimeout(function(){$('budget').focus()},60)};
+  $('ok-goal').onclick=function(){cview('menu')};$('ok-budget').onclick=function(){cview('menu')};
+  $('goal').oninput=function(){cfg.goal=Math.max(0,parseFloat($('goal').value)||0);saveCfg();render()};
+  $('gname').oninput=function(){cfg.goalName=$('gname').value.slice(0,30);saveCfg();render()};
+  $('bname').oninput=function(){cfg.budName=$('bname').value.slice(0,30);saveCfg();render()};
+  $('budget').oninput=function(){cfg.budget=Math.max(0,parseFloat($('budget').value)||0);saveCfg();render()};
+  $('exp').onclick=function(){try{var bl=new Blob([JSON.stringify({v:1,items:items,cfg:Object.assign({},cfg,{cats:CATS})})],{type:'application/json'});var a=document.createElement('a');a.href=URL.createObjectURL(bl);a.download='mis-ahorros-'+today()+'.json';document.body.appendChild(a);a.click();markBackup();document.body.removeChild(a);$('cmsg').textContent='Copia generada. Si no se descargó, este visor no permite descargas: usa Chrome.'}catch(e){$('cmsg').textContent='Este visor no permite descargar archivos. Usa Chrome.'}};
+  $('imp').onclick=function(){$('file').click()};
+  $('file').onchange=function(){var f=$('file').files[0];if(!f)return;var r=new FileReader();r.onload=function(){$('cmsg').textContent=importData(r.result);$('file').value=''};r.readAsText(f)};
+  $('m-bio').onclick=function(){var m=$('cmsg');
+    if(nativeBio()){m.textContent='Ya se usa tu huella, rostro o bloqueo del teléfono para abrir la app.';return}
+    if(webBio()){try{localStorage.removeItem(BIOK)}catch(e){}bioStatus();m.textContent='Huella desactivada. Se usará tu PIN.';return}
+    if(!webOK()){m.textContent='Este visor no permite huella. Ábrela en Chrome desde una dirección https o empaquétala con Capacitor.';return}
+    if(!getPin()){m.textContent='Primero crea tu PIN y luego activa la huella.';return}
+    m.textContent='Confirma con tu huella, rostro o bloqueo de pantalla…';
+    var t0=Date.now();authing=true;
+    function fail(e){authing=false;authT=Date.now();var n=(e&&e.name)||String(e);
+      m.textContent=n==='NotAllowedError'?(Date.now()-t0<1500?'Chrome rechazó la solicitud sin mostrar el aviso. Cierra y abre Chrome, actualiza Chrome y los Servicios de Google Play, y vuelve a intentar.':'Se canceló o se agotó el tiempo. Toca de nuevo y confirma con tu huella cuando aparezca el aviso.'):n==='SecurityError'?'La dirección no es segura. Ábrela con https:// en Chrome.':n==='NotSupportedError'?'Este teléfono o navegador no admite huella para páginas web.':'No se pudo activar ('+n+').'}
+    try{webEnroll().then(function(){authing=false;authT=Date.now();bioStatus();m.textContent='Listo. La próxima vez podrás abrir con tu huella o rostro.'},fail)}catch(e){fail(e)}};
+  $('chpin').onclick=function(){if(!canLock){$('cmsg').textContent='Este visor no permite guardar un PIN.';return}closeSheet('ov2');setMode('create');showLock()};
+  var bd={};
+  ['ov','ov2'].forEach(function(id){var el=$(id);
+    el.addEventListener('pointerdown',function(e){bd[id]=(e.target===el)&&Date.now()-lastRz>500&&Date.now()-lastOpen>400});
+    el.onclick=function(e){if(e.target===el&&bd[id])closeSheet(id);bd[id]=false}});
+  $('save').onclick=function(){
+    var v=parseFloat($('amt').value);
+    if(!(v>0)){$('err').textContent='Escribe un monto mayor a 0.';return}
+    var ed=editing&&items.filter(function(y){return y.id===editing})[0];
+    if(ed){ed.type=type;ed.amount=Math.round(v*100)/100;ed.cat=$('cat').value;ed.note=$('note').value.trim();ed.date=$('date').value||today();persist();render();closeSheet('ov');return}
+    var nw=new Date();items.push({id:Date.now(),type:type,cat:$('cat').value,amount:Math.round(v*100)/100,note:$('note').value.trim(),date:$('date').value||today(),time:String(nw.getHours()).padStart(2,'0')+':'+String(nw.getMinutes()).padStart(2,'0')});
+    persist();render();closeSheet('ov');
+  };
+  try{localStorage.setItem('t','1');localStorage.removeItem('t')}catch(e){canLock=false;$('warn').style.display='block'}
+  var lastDel=null,snT=null;
+  function showSnack(){$('snack').className='snack show';clearTimeout(snT);snT=setTimeout(function(){$('snack').className='snack';lastDel=null},6000)}
+  $('undo').onclick=function(){if(lastDel){items.push(lastDel);lastDel=null;persist();render()}$('snack').className='snack';clearTimeout(snT)};
+  function shiftM(d){var p=vm.split('-'),dt=new Date(+p[0],+p[1]-1+d,1),nv=dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0');if(nv>today().slice(0,7))return;vm=nv;render()}
+  $('mprev').onclick=function(){shiftM(-1)};$('mnext').onclick=function(){shiftM(1)};
+  function markBackup(){try{localStorage.setItem('mis-ahorros-lastbk',today());localStorage.removeItem('mis-ahorros-snooze')}catch(e){}checkBk()}
+  function checkBk(){var b=$('bk'),lb=null,sn=null;try{lb=localStorage.getItem('mis-ahorros-lastbk');sn=localStorage.getItem('mis-ahorros-snooze')}catch(e){}
+    function days(d){return Math.round((new Date(today())-new Date(d))/864e5)}
+    if(!(items.length>=3&&(!lb||days(lb)>=14)&&(!sn||days(sn)>=3))){b.style.display='none';return}
+    $('bktxt').textContent=lb?'Hace '+days(lb)+' días que no respaldas tus datos.':'Aún no has respaldado tus datos.';b.style.display='flex'}
+  $('bkgo').onclick=function(){$('gear').onclick()};
+  $('bkx').onclick=function(){try{localStorage.setItem('mis-ahorros-snooze',today())}catch(e){}checkBk()};
+  function importData(t){try{var d=JSON.parse(t),n=0,ids={};items.forEach(function(x){ids[x.id]=1});
+    (d.items||[]).forEach(function(x){if(x&&(x.type==='in'||x.type==='out')&&x.amount>0&&typeof x.date==='string'&&!ids[x.id]){items.push({id:x.id||Date.now()+n,type:x.type,amount:+x.amount,note:String(x.note||'').slice(0,60),cat:x.cat?String(x.cat):undefined,date:x.date,time:x.time});n++}});
+    if(d.cfg){if(!cfg.goal&&!cfg.budget){cfg.goal=+d.cfg.goal||0;cfg.budget=+d.cfg.budget||0;cfg.goalName=String(d.cfg.goalName||'').slice(0,30);cfg.budName=String(d.cfg.budName||'').slice(0,30)}
+      var c=d.cfg.cats;if(c&&Array.isArray(c.in)&&Array.isArray(c.out)&&c.in.length&&c.out.length)CATS={in:c.in.slice(0,20).map(String),out:c.out.slice(0,20).map(String)};
+      saveCfg()}
+    persist();render();return 'Se importaron '+n+' movimientos.'}catch(e){return 'El texto o archivo no es una copia válida.'}}
+  $('m-txt').onclick=function(){$('txt').value='';$('tmsg').textContent='';cview('txt')};
+  $('tcopy').onclick=function(){var j=JSON.stringify({v:1,items:items,cfg:Object.assign({},cfg,{cats:CATS})});$('txt').value=j;
+    var man='Mantén presionado el texto, elige Seleccionar todo y Copiar.';
+    function ok(){$('tmsg').textContent='Copiado. Guárdalo en un lugar seguro (notas o correo).';markBackup()}
+    function fb(){try{$('txt').focus();$('txt').select();document.execCommand('copy')?ok():$('tmsg').textContent=man}catch(e){$('tmsg').textContent=man}}
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(j).then(ok,fb)}else fb()};
+  $('timp').onclick=function(){var t=$('txt').value.trim();if(!t){$('tmsg').textContent='Pega primero tu copia en el cuadro.';return}$('tmsg').textContent=importData(t)};
+  $('ok-txt').onclick=function(){cview('menu')};$('ok-cats').onclick=function(){cview('menu')};
+  function drawCatEd(){var box=$('catlist');box.innerHTML='';
+    [['in','Ingresos'],['out','Gastos']].forEach(function(g){var t=g[0];
+      var h=document.createElement('h3');h.className='day';h.textContent=g[1];box.appendChild(h);
+      CATS[t].forEach(function(name,i){var r=document.createElement('div');r.className='cr';
+        var inp=document.createElement('input');inp.type='text';inp.maxLength=20;inp.value=name;
+        inp.onchange=function(){var nn=inp.value.trim();if(!nn||CATS[t].indexOf(nn)>-1){inp.value=name;return}var old=CATS[t][i];CATS[t][i]=nn;items.forEach(function(x){if(x.type===t&&x.cat===old)x.cat=nn});persist();saveCfg();render();drawCatEd()};
+        var d=document.createElement('button');d.type='button';d.textContent='×';d.setAttribute('aria-label','Quitar categoría');
+        d.onclick=function(){if(CATS[t].length<=1)return;CATS[t].splice(i,1);saveCfg();drawCatEd()};
+        r.appendChild(inp);r.appendChild(d);box.appendChild(r)});
+      var ar=document.createElement('div');ar.className='cr';
+      var ai=document.createElement('input');ai.type='text';ai.maxLength=20;ai.placeholder='Nueva categoría';
+      var ab=document.createElement('button');ab.type='button';ab.textContent='+';ab.setAttribute('aria-label','Agregar categoría');
+      ab.onclick=function(){var nn=ai.value.trim();if(!nn||CATS[t].indexOf(nn)>-1||CATS[t].length>=20)return;CATS[t].push(nn);saveCfg();drawCatEd()};
+      ar.appendChild(ai);ar.appendChild(ab);box.appendChild(ar)})}
+  $('m-cats').onclick=function(){drawCatEd();cview('cats')};
+  function fit(){var v=window.visualViewport;if(!v)return;lastRz=Date.now();
+    var kb=Math.max(0,Math.round(window.innerHeight-v.height-v.offsetTop));
+    if(kb<120||!document.activeElement||!/INPUT|SELECT/.test(document.activeElement.tagName))kb=0;
+    ['ov','ov2'].forEach(function(id){$(id).style.bottom=kb+'px'});
+    ['dlg'].forEach(function(id){$(id).style.maxHeight=Math.round(Math.min(v.height-12,window.innerHeight*.68))+'px'});
+  }
+  if(window.visualViewport){visualViewport.addEventListener('resize',fit);visualViewport.addEventListener('scroll',fit)}
+  document.addEventListener('focusin',function(e){var t=e.target;if(t&&(t.tagName==='INPUT'||t.tagName==='SELECT')&&t.closest&&t.closest('#dlg,#cfg'))setTimeout(function(){fit();t.scrollIntoView({block:'center'})},300)});
+  /* Toques rápidos: activa el botón al soltar el dedo y descarta el click duplicado */
+  (function(){var dn=null,x0=0,y0=0;
+    document.addEventListener('pointerdown',function(e){if(e.pointerType==='mouse'){dn=null;return}dn=e.target.closest?e.target.closest('button'):null;x0=e.clientX;y0=e.clientY},true);
+    document.addEventListener('pointerup',function(e){if(e.pointerType==='mouse'||!dn)return;var b=dn;dn=null;
+      if(Math.abs(e.clientX-x0)>10||Math.abs(e.clientY-y0)>10||b.disabled||!document.body.contains(b))return;
+      var up=e.target.closest?e.target.closest('button'):null;if(up!==b)return;
+      b._fk=Date.now();b.click()},true);
+    document.addEventListener('click',function(e){var b=e.target.closest?e.target.closest('button'):null;
+      if(b&&b._fk&&e.isTrusted&&Date.now()-b._fk<800){e.stopImmediatePropagation();e.preventDefault()}},true);
+    document.addEventListener('pointercancel',function(){dn=null},true);
+  })();
+  loadCfg();load();render();
+  function hash(p){var x=5381,t='ahorros'+p;for(var i=0;i<t.length;i++)x=((x<<5)+x+t.charCodeAt(i))|0;return String(x)}
+  function getPin(){try{return localStorage.getItem(PK)}catch(e){return null}}
+  function paint(){var d=$('dots').children;for(var i=0;i<4;i++)d[i].className=i<entry.length?'f':''}
+  var bioMode=false,authing=false,authT=0;
+  function setMode(m){mode=m;entry='';paint();$('lerr').textContent='';
+    var b=m==='bio';
+    $('dots').style.display=b?'none':'';$('pad').style.display=b?'none':'';
+    $('lt').textContent=b?'Mis ahorros':m==='create'?'Crea tu PIN':m==='confirm'?'Repite tu PIN':'Ingresa tu PIN';
+    $('ls').textContent=b?'Desbloquea con tu huella o el bloqueo del teléfono':m==='create'?'4 dígitos para proteger tus ahorros':m==='confirm'?'Escríbelo otra vez':'';
+    $('forgot').style.display=m==='unlock'?'block':'none';
+    $('bio').style.display=((m==='unlock'||b)&&bioPlugin())?'block':'none';
+    $('bio').textContent=b?'Desbloquear':'Usar huella o rostro';
+    $('usepin').style.display=(b&&getPin())?'block':'none';
+    $('forgot').textContent='Olvidé mi PIN';$('forgot').dataset.c=''}
+  function showLock(){lockTok++;locking=false;$('dots').className='dots';$('lock').className='lock show';if(mode==='unlock'||mode==='bio')setTimeout(tryBio,400)}
+  /* Biometría: 1) plugin nativo Capacitor, 2) plugin Cordova (Fingerprint), 3) WebAuthn (Chrome/PWA con https) */
+  var BIOK='mis-ahorros-bio';
+  function capPlugin(){try{var C=window.Capacitor;if(!C)return null;var p=C.Plugins||{};var x=p.BiometricAuth||p.BiometricAuthNative||null;if(x&&x.authenticate)return x;
+    if(C.nativePromise&&C.isPluginAvailable&&C.isPluginAvailable('BiometricAuthNative'))return{checkBiometry:function(){return C.nativePromise('BiometricAuthNative','checkBiometry',{})},authenticate:function(o){return C.nativePromise('BiometricAuthNative','authenticate',o||{})}};
+    return null}catch(e){return null}}
+  function nativeBio(){
+    var c=capPlugin();
+    if(c)return{check:function(){return c.checkBiometry().then(function(r){return !!(r&&(r.isAvailable||r.deviceIsSecure))})},
+      auth:function(){return c.authenticate({reason:'Desbloquea Mis ahorros',cancelTitle:'Cancelar',allowDeviceCredential:true,androidTitle:'Mis ahorros',androidSubtitle:'Confirma que eres tú'})}};
+    var F=window.Fingerprint;
+    if(F&&typeof F.show==='function')return{check:function(){return new Promise(function(ok){try{F.isAvailable(function(){ok(true)},function(){ok(false)},{allowBackup:true})}catch(e){ok(false)}})},
+      auth:function(){return new Promise(function(ok,no){try{F.show({title:'Mis ahorros',description:'Confirma que eres tú',disableBackup:false},function(){ok()},function(e){no(e||1)})}catch(e){no(e)}})}};
+    return null}
+  function webOK(){try{return !!(window.isSecureContext&&window.PublicKeyCredential&&navigator.credentials&&navigator.credentials.create&&window.crypto&&crypto.getRandomValues)}catch(e){return false}}
+  function getCred(){try{return localStorage.getItem(BIOK)}catch(e){return null}}
+  function rnd(n){var a=new Uint8Array(n);crypto.getRandomValues(a);return a}
+  function enc(b){var s='',a=new Uint8Array(b);for(var i=0;i<a.length;i++)s+=String.fromCharCode(a[i]);return btoa(s)}
+  function dec(s){var t=atob(s),a=new Uint8Array(t.length);for(var i=0;i<t.length;i++)a[i]=t.charCodeAt(i);return a}
+  function webBio(){var id=getCred();if(!id||!webOK())return null;
+    return{check:function(){return Promise.resolve(true)},
+      auth:function(){return navigator.credentials.get({publicKey:{challenge:rnd(32),allowCredentials:[{type:'public-key',id:dec(id),transports:['internal']}],userVerification:'required',timeout:60000}})}}}
+  function webEnroll(){return navigator.credentials.create({publicKey:{challenge:rnd(32),rp:{name:'Mis ahorros'},user:{id:rnd(16),name:'mis-ahorros',displayName:'Mis ahorros'},pubKeyCredParams:[{type:'public-key',alg:-7},{type:'public-key',alg:-257}],authenticatorSelection:{authenticatorAttachment:'platform',userVerification:'required',residentKey:'discouraged'},timeout:60000}}).then(function(c){localStorage.setItem(BIOK,enc(c.rawId))})}
+  function bioPlugin(){return nativeBio()||webBio()}
+  function bioStatus(){var s=$('s-bio');if(!s)return;
+    s.textContent=nativeBio()?'Activo con el bloqueo del teléfono':webBio()?'Activado · toca para desactivar':webOK()?'Toca para activar':'No disponible en este visor'}
+  function tryBio(){var P=bioPlugin();if(!P||(mode!=='unlock'&&mode!=='bio')||locking||authing||$('lock').className.indexOf('show')<0)return;
+    authing=true;authS=Date.now();
+    var wd=setTimeout(function(){authing=false},20000);
+    function fin(ok){clearTimeout(wd);authing=false;authT=Date.now();if(ok){if(!locking&&$('lock').className.indexOf('show')>-1)hideLock()}else $('lerr').textContent=mode==='bio'?'Toca Desbloquear para intentar de nuevo.':'No se pudo verificar. Toca el botón o usa tu PIN.'}
+    try{P.auth().then(function(){fin(true)},function(){fin(false)})}catch(e){fin(false)}}
+  $('usepin').onclick=function(){setMode('unlock')};
+  $('bio').onclick=function(){if(authing&&Date.now()-authS>4000)authing=false;tryBio()};
+  function hideLock(){
+    locking=true;var tk=++lockTok;$('dots').className='dots ok';$('lt').textContent='¡Listo!';$('ls').textContent='';$('lerr').textContent='';
+    $('lock').className='lock show out';
+    var m=document.querySelector('main');
+    setTimeout(function(){if(tk!==lockTok)return;$('lock').className='lock';entry='';paint();locking=false;$('dots').className='dots';
+      m.className='rev';setTimeout(function(){m.className=''},700)},450);
+  }
+  function done(){
+    var e=entry;
+    if(mode==='create'){first=e;setMode('confirm');return}
+    if(mode==='confirm'){
+      if(e===first){try{localStorage.setItem(PK,hash(e))}catch(x){}hideLock()}
+      else{setMode('create');$('lerr').textContent='No coinciden. Intenta de nuevo.'}
+      return}
+    if(hash(e)===getPin()){hideLock()}else{entry='';paint();$('lerr').textContent='PIN incorrecto';$('dots').className='dots shake';setTimeout(function(){$('dots').className='dots'},400)}
+  }
+  function press(k){
+    if(locking)return;
+    if(k==='b'){entry=entry.slice(0,-1);paint();return}
+    if(entry.length>=4)return;
+    entry+=k;paint();
+    if(entry.length===4)setTimeout(done,120);
+  }
+  var keys=['1','2','3','4','5','6','7','8','9','','0','b'];
+  keys.forEach(function(k,ix){
+    var b=document.createElement('button');b.type='button';b.style.animationDelay=(ix*35)+'ms';
+    if(k===''){b.style.visibility='hidden'}else{b.textContent=k==='b'?'⌫':k;if(k==='b'){b.className='x';b.setAttribute('aria-label','Borrar')}b.onclick=function(){press(k)}}
+    $('pad').appendChild(b);
+  });
+  $('forgot').onclick=function(){
+    var f=$('forgot');
+    if(f.dataset.c){
+      try{localStorage.removeItem(KEY);localStorage.removeItem(PK);localStorage.removeItem(BIOK)}catch(e){}
+      items=[];render();setMode('create');
+    }else{f.dataset.c=1;f.textContent='Toca otra vez: se borrarán todos tus movimientos';f.style.color='var(--out)';
+      setTimeout(function(){f.dataset.c='';f.textContent='Olvidé mi PIN';f.style.color=''},4000)}
+  };
+  document.addEventListener('visibilitychange',function(){
+    if(document.hidden&&(bioMode||(canLock&&getPin()))&&!authing&&Date.now()-authT>1500){closeSheet('ov');setMode(bioMode?'bio':'unlock');showLock()}
+  });
+  var started=false;
+  function start(){if(started)return;started=true;var P=nativeBio();
+    function pinFlow(){if(canLock){setMode(getPin()?'unlock':'create');showLock()}else{$('lock').className='lock'}}
+    if(!P){pinFlow();return}
+    bioMode=true;setMode('bio');showLock();
+    try{P.check().then(function(ok){if(!ok){bioMode=false;pinFlow()}},function(){bioMode=false;pinFlow()})}catch(e){bioMode=false;pinFlow()}
+  }
+  /* En Cordova los plugins llegan con 'deviceready': mientras tanto la pantalla queda bloqueada */
+  if(window.cordova&&!window.Fingerprint){setMode('bio');$('lock').className='lock show';document.addEventListener('deviceready',start,false);setTimeout(start,1500)}else start();
+})();
+</script>
+</body>
+</html>
